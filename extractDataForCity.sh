@@ -30,11 +30,11 @@ bigCities['Hyderabad']=10
 
 for ITERATION in $( eval echo {0..${bigCities[${CITYNAME}]}} )
 do
-    for NUMBER in {0..12}
-    do
-	    node citiesToLookup.js $CITYNAME shops $NUMBER $ITERATION
-        sleep 25
-    done
+    # for NUMBER in {0..12}
+    # do
+	  #   node citiesToLookup.js $CITYNAME shops $NUMBER $ITERATION
+    #     sleep 25
+    # done
     for NUMBER in {0..25}
     do
 	    node citiesToLookup.js $CITYNAME brands $NUMBER $ITERATION
@@ -45,11 +45,11 @@ done
 }
 
 function extractRegularCity {
-for NUMBER in {0..12}
-do
-	node citiesToLookup.js $CITYNAME shops $NUMBER
-    sleep 25
-done
+# for NUMBER in {0..12}
+# do
+# 	node citiesToLookup.js $CITYNAME shops $NUMBER
+#     sleep 25
+# done
 for NUMBER in {0..25}
 do
 	node citiesToLookup.js $CITYNAME brands $NUMBER

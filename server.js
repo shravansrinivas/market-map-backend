@@ -30,6 +30,9 @@ mongoose.connect(process.env.MONGO_URL, {
 });
 
 //Routes
+app.get('/',async(req,res)=>{
+  res.send('Hey there, welcome! Backend for application is running fine! You can start the front-end app now:)');
+}); // home page message
 app.use("/api/city", Cities);
 app.use("/api/categories", Subcategories);
 app.use("/api/shops", Shops);
