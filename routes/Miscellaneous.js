@@ -103,7 +103,7 @@ router.get(`/:cityName/majorMarketAreas/v2`, async (req, resp) => {
   await getCityMajorMarketAreas(req.params.cityName, req.body.list)
     .then((data) => {
       let res={};
-      console.log(data.length);
+     // console.log(data.length);
  
       data.forEach(marketObj=>{
         let addr=Object.keys(marketObj)[0].split(',');
@@ -328,7 +328,7 @@ router.get('/suggestPlaceForShop/', async (req,res) => {
   await Shops.findOne({cityName:cityName, subcategory:subcategory}).sort({'longitude':+1}).then(s=>minLong=s.longitude);
   let centroid = [(maxLat+minLat)/2,(maxLong+minLong)/2];
   let alphas=[];
-  console.log(centroid, maxLong, minLong, maxLat, minLat)
+  // console.log(centroid, maxLong, minLong, maxLat, minLat)
 
   await Shops.find({cityName:cityName,subcategory:subcategory}).then(shops=>{
     shops.forEach(shop=>{
@@ -349,7 +349,7 @@ router.get('/suggestPlaceForShop/', async (req,res) => {
   }
   
   alphas.sort(compare);
-  console.log(alphas[0]);
+ // console.log(alphas[0]);
   res.json({alphas})
   
 }); 
@@ -367,7 +367,7 @@ router.put('/getTopTwo/', async (req,res) => {
   await Shops.findOne({cityName:cityName, subcategory:subcategory}).sort({'longitude':+1}).then(s=>minLong=s.longitude);
   let centroid = [(maxLat+minLat)/2,(maxLong+minLong)/2];
   let alphas=[];
-  console.log(centroid, maxLong, minLong, maxLat, minLat)
+  // console.log(centroid, maxLong, minLong, maxLat, minLat)
 
   await Shops.find({cityName:cityName,subcategory:subcategory}).then(shops=>{
     shops.forEach(shop=>{

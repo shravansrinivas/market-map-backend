@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyparser = require("body-parser");
 const dotenv = require("dotenv").config();
+const morgan = require('morgan');
 
 //Routes import
 const Cities = require("./routes/City");
@@ -21,6 +22,7 @@ const app = express();
 
 //Midleware
 app.use(bodyparser.json());
+app.use(morgan('combined'))
 app.use(cors());
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
