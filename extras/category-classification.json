@@ -1,0 +1,332 @@
+ [
+    {
+        "category": "Agricultural",
+        "subcategory": [
+            "agricultural supplies",
+            "agricultural technology",
+            "agriculture"
+        ]
+    },
+    {
+        "category": "Automobiles",
+        "subcategory": [
+            "automobile",
+            "automobile manufacturing",
+            "automotive dealer",
+            "car",
+            "car glass replacement shops",
+            "car wash",
+            "cash dispenser",
+            "truck",
+            "truck repair service",
+            "tyre (tire) services",
+            "van"
+        ]
+    },
+    {
+        "category": "Hotels and Eateries",
+        "subcategory": [
+            "american",
+            "asian (other)",
+            "bar",
+            "barbecue",
+            "indian",
+            "italian",
+            "sandwich",
+            "seafood",
+            "snacks",
+            "café",
+            "café/pub",
+            "fast food",
+            "pizza",
+            "catering",
+            "chicken",
+            "chinese",
+            "arabian",
+            "bed breakfast guest houses",
+            "international",
+            "coffee shop",
+            "food drinks: bakers",
+            "food drinks: butchers",
+            "food drinks: fishmongers",
+            "food drinks: food markets",
+            "food drinks: food shops",
+            "food drinks: green grocers",
+            "food drinks: grocers",
+            "food drinks: wine spirits",
+            "hotel",
+            "hotel/motel",
+            "ice cream parlor",
+            "motel",
+            "restaurant",
+            "thai",
+            "vegetarian",
+            "wine bar",
+            "yogurt/juice bar",
+            "delicatessen",
+            "national",
+            "tea house"
+        ]
+    },
+    {
+        "category": "Sports",
+        "subcategory": [
+            "basketball",
+            "cricket ground",
+            "football",
+            "sport school",
+            "sports center",
+            "sports equipment clothing",
+            "stadium"
+        ]
+    },
+    {
+        "category": "Public Places",
+        "subcategory": [
+            "public",
+            "public amenity",
+            "public call box",
+            "public health technologies",
+            "public transport stop",
+            "bus",
+            "transport",
+            "toilet",
+            "petrol station",
+            "passenger transport ticket office",
+            "bus charter rentals",
+            "bus stop",
+            "library",
+            "park",
+            "park recreation area",
+            "police station",
+            "railway station",
+            "taxi stand",
+            "bank",
+            "banquet rooms",
+            "cable telephone",
+            "community center",
+            "courthouse",
+            "currency exchange",
+            "mail/package/freight delivery",
+            "rest camps"
+        ]
+    },
+    {
+        "category": "Entertainment & Leisure",
+        "subcategory": [
+            "amphitheater",
+            "amusement park",
+            "amusement place",
+            "beach club",
+            "beauty salon",
+            "beauty supplies",
+            "cd's, dvd videos",
+            "cd/video rental",
+            "club association",
+            "christmas/holiday store",
+            "antique/art",
+            "book shops",
+            "holiday rental",
+            "music center",
+            "musical instruments",
+            "nail salon",
+            "cinema",
+            "concert hall",
+            "entertainment",
+            "equipment rental",
+            "exhibition convention center",
+            "flying club",
+            "gifts, cards, novelties souvenirs",
+            "hobby/free time",
+            "leisure center",
+            "pub",
+            "resort",
+            "sauna, solarium massage",
+            "swimming pool",
+            "theater",
+            "stamp shop",
+            "toys games"
+        ]
+    },
+    {
+        "category": "Health & Wellness",
+        "subcategory": [
+            "ambulance unit",
+            "animal services",
+            "blood bank",
+            "cemetery",
+            "chemicals",
+            "dentist",
+            "doctor",
+            "drug store",
+            "hospital for women children",
+            "hospital of chinese medicine",
+            "hospital/polyclinic",
+            "health care service",
+            "medical supplies equipment",
+            "opticians",
+            "personal care facility",
+            "personal service",
+            "pet supplies",
+            "pharmaceuticals",
+            "pharmacy",
+            "veterinarian",
+            "child care facility"
+        ]
+    },
+    {
+        "category": "Real Estate & Residential",
+        "subcategory": [
+            "(sub) urban",
+            "building",
+            "condominium complex",
+            "construction",
+            "construction material equipment",
+            "farm",
+            "house garden: carpet/floor coverings",
+            "house garden: curtains/textiles",
+            "house garden: do-it-yourself centers",
+            "house garden: garden centers services",
+            "house garden: lighting",
+            "house garden: painting decorating",
+            "open parking area",
+            "residential accommodation",
+            "residential estate",
+            "real estate",
+            "real estate agents",
+            "townhouse complex",
+            "villa",
+            "cabins lodges",
+            "commercial building"
+        ]
+    },
+    {
+        "category": "Religious Places",
+        "subcategory": [
+            "ashram",
+            "church",
+            "gurudwara",
+            "mosque",
+            "place of worship",
+            "temple"
+        ]
+    },
+    {
+        "category": "Educational",
+        "subcategory": [
+            "college/university",
+            "culinary school",
+            "dance studio school",
+            "driving school",
+            "high school",
+            "hostel",
+            "junior college/community college",
+            "language school",
+            "pre school",
+            "primary school",
+            "school",
+            "senior high school",
+            "special school"
+        ]
+    },
+    {
+        "category": "Office Spaces",
+        "subcategory": [
+            "advertising/marketing",
+            "business park",
+            "company",
+            "computer data services",
+            "computer software",
+            "diversified finanacials",
+            "government office",
+            "import/export distribution",
+            "industrial building",
+            "insurance",
+            "investment advisors",
+            "legal services",
+            "non governmental organization",
+            "publishing technologies",
+            "stock exchange",
+            "tax services",
+            "tele communications",
+            "tourist information office",
+            "traffic control department",
+            "traffic service center",
+            "transport authority/vehicle registration",
+            "wedding services",
+            "welfare organization"
+        ]
+    },
+    {
+        "category": "Clothing",
+        "subcategory": [
+            "bags leatherwear",
+            "clothing accessories: children",
+            "clothing accessories: footwear shoe repairs",
+            "clothing accessories: general",
+            "clothing accessories: men",
+            "clothing accessories: specialty",
+            "clothing accessories: women"
+        ]
+    },
+    {
+        "category": "General Stores",
+        "subcategory": [
+            "convenience stores",
+            "department store",
+            "general"
+        ]
+    },
+    {
+        "category": "Services & Maintenance Stores",
+        "subcategory": [
+            "cleaning services",
+            "dry cleaners",
+            "florists",
+            "hairdressers barbers",
+            "laundry",
+            "service",
+            "services",
+            "security products",
+            "weigh scales",
+            "furniture/home furnishings",
+            "glass windows",
+            "glassware/ceramic",
+            "hardware",
+            "home appliance repair",
+            "manufacturing",
+            "marine electronic equipment",
+            "mechanical engineering",
+            "oil natural gas",
+            "pawn shop",
+            "photo lab/development",
+            "photocopy",
+            "weigh station"
+        ]
+    },
+    {
+        "category": "Electrical and Electronics",
+        "subcategory": [
+            "electric vehicle station",
+            "electrical appliance",
+            "electrical, office it: camera's photography",
+            "electrical, office it: computer computer supplies",
+            "electrical, office it: consumer electronics",
+            "electrical, office it: office equipment",
+            "electronics"
+        ]
+    },
+    {
+        "category": "Tourism and Vacation",
+        "subcategory": [
+            "historic site",
+            "historical park",
+            "important tourist attraction",
+            "memorial",
+            "nightlife",
+            "natural tourist attraction",
+            "recreational vehicles",
+            "travel agents"
+        ]
+    }
+]
