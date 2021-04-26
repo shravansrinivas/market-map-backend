@@ -63,7 +63,7 @@ const schema = new mongoose.Schema({
     },
   ],
 });
-
+schema.set('collection', 'establishments');
 const Establishment = mongoose.model("establishments", schema);
 
 module.exports = Establishment;

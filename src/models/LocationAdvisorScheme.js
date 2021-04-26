@@ -2,13 +2,20 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
   schemaName: { type: String },
-  idealForBusiness: {type: String},
+  idealForBusiness: { type: String, default: "" },
+
   subcategories: [
     {
-      subcategory: { type: String },
-      radius: { type: Number, default: 500 },
-      diabler: { type: Boolean, default: false },
-      selected: { type: Boolean, default: false },
+      category: { type: String },
+      subcategories: [
+        {
+          subcategory: { type: String },
+          disabler: { type: Boolean, default: false },
+          selected: { type: Boolean, default: false },
+          radius: { type: Number, default: 500 },
+          weight: { type: Number, default: 1 },
+        },
+      ],
     },
   ],
 });
