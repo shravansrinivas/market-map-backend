@@ -176,60 +176,60 @@ module.exports.handlePostEstablishment = async (req, res) => {
       state = req.body.state,
       city = req.body.city,
       category = req.body.category,
+      name = req.body.name,
       radius = 10000;
-
+     
     let mapquestUrl = `http://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&street=${street}&city=${city}&state=${state}&postalCode=${zip}`;
-    axios
-      .get(mapquestUrl)
-
-      .then(async (response) => {
+    axios.get(
+      mapquestUrl).then(async (response) => {
         let { data } = response;
         let { lat, lng } = data["results"][0]["locations"][0]["latLng"];
         let diffRadius = metresToLatLong(radius);
         let diff_lat = diffRadius.lat,
           diff_lon = diffRadius.lon;
-        let est_to_save = new Establishment({
-          type: { type: String, default: "" },
-          id: { type: String, default: "" },
+        
+         /* let est_to_save = new Establishment({
+          type: { type: String, default: null },
+          id: { type: String, default: null },
           score: { type: Number, default: null },
           dist: { type: Number, default: null },
-          info: { type: String, default: "" },
+          info: { type: String, default: null },
           poi: {
-            name: { type: String, default: "" },
+            name: { type: String, default: name },
             categorySet: [
               {
                 id: { type: Number, default: null },
               },
             ],
-            categories: [{ type: String, default: "" }],
+            categories: [{ type: String, default: null }],
             classifications: [
               {
-                code: { type: String, default: "" },
+                code: { type: String, default: null },
                 names: [
                   {
-                    nameLocale: { type: String, default: "" },
-                    name: { type: String, default: "" },
+                    nameLocale: { type: String, default: null },
+                    name: { type: String, default: null },
                   },
                 ],
               },
             ],
           },
           address: {
-            streetName: { type: String, default: "" },
-            municipalitySubdivision: { type: String, default: "" },
-            municipality: { type: String, default: "" },
-            countrySecondarySubdivision: { type: String, default: "" },
-            countrySubdivision: { type: String, default: "" },
-            postalCode: { type: String, default: "" },
-            countryCode: { type: String, default: "" },
-            country: { type: String, default: "" },
-            countryCodeISO3: { type: String, default: "" },
-            freeformAddress: { type: String, default: "" },
-            localName: { type: String, default: "" },
+            streetName: { type: String, default: street },
+            municipalitySubdivision: { type: String, default: null },
+            municipality: { type: String, default: null },
+            countrySecondarySubdivision: { type: String, default: null },
+            countrySubdivision: { type: String, default: null },
+            postalCode: { type: String, default: null },
+            countryCode: { type: String, default: null },
+            country: { type: String, default: null },
+            countryCodeISO3: { type: String, default: null },
+            freeformAddress: { type: String, default: null },
+            localName: { type: String, default: null },
           },
           position: {
-            lat: { type: Number, default: null },
-            lon: { type: Number, default: null },
+            lat: { type: Number, default: lat },
+            lon: { type: Number, default: lng },
           },
           viewport: {
             topLeftPoint: {
@@ -243,15 +243,99 @@ module.exports.handlePostEstablishment = async (req, res) => {
           },
           entryPoints: [
             {
-              type: { type: String, default: "" },
+              type: { type: String, default: null },
               position: {
                 lat: { type: Number, default: null },
                 lon: { type: Number, default: null },
               },
             },
           ],
+        });*/
+        //let est_to_save = new Establishment();
+       /* var est_to_save = new Establishment({
+          position: {
+            lat: lat,
+            lon: lng,
+          },
+        })*/
+        console.log('trying to type before it saves')
+        let Est_to_save = new Establishment({
+          type: "POI",
+          id: "",
+          score: null,
+          dist:null,
+          info: "",
+          poi: {
+            name: name,
+            categorySet: [
+              {
+                id: null,
+              },
+            ],
+            categories: [],
+            classifications: [
+              {
+                code: "",
+                names: [
+                  {
+                    nameLocale: "",
+                    name: "",
+                  },
+                ],
+              },
+            ],
+          },
+          address: {
+            streetName: street,
+            municipalitySubdivision: city,
+            municipality:city,
+            countrySecondarySubdivision: city,
+            countrySubdivision: state,
+            postalCode: zip,
+            countryCode: null,
+            country: null,
+            countryCodeISO3: null,
+            freeformAddress: `${street},${city},${zip},${state}`,
+            localName: null,
+          },
+          position: {
+            lat: lat,
+            lon: lng,
+          },
+          viewport: {
+            topLeftPoint: {
+              lat: null,
+              lon: null,
+            },
+            btmRightPoint: {
+              lat: null,
+              lon: null,
+            },
+          },
+          entryPoints: [
+            {
+              type: null,
+              position: {
+                lat: null,
+                lon: null,
+              },
+            },
+          ],
         });
-        return res.json({ error: false, results });
+        console.log('does it work here')
+        Est_to_save.save(function(err,data){
+          if(err){
+            console.log(err);
+            console.log('hii heres an error')
+            return;
+          }
+          
+            //console.log(data)
+            console.log('hii its working')
+          //return res.json()
+        });
+        console.log('hii')
+        return res.json({ error: false, message:"shops saved" });
       })
       .catch((err) => {
         return res.json({ error: true, errorMessage: err });
@@ -482,8 +566,9 @@ module.exports.getEstablishmentsAroundAnAddress = async (req, res) => {
       zip = req.body.zip,
       state = req.body.state,
       city = req.body.city,
+      //street = 'wazirpura road civil lines',state = 'uttar pradesh', city ='agra',zip='282001'
       radius = 10000;
-
+     console.log(city);
     let mapquestUrl = `http://www.mapquestapi.com/geocoding/v1/address?key=${API_KEY}&street=${street}&city=${city}&state=${state}&postalCode=${zip}`;
     axios
       .get(mapquestUrl)
@@ -504,7 +589,16 @@ module.exports.getEstablishmentsAroundAnAddress = async (req, res) => {
             $lte: lng + diff_lon,
           },
         });
-        return res.json({ error: false, results });
+        console.log(`here are the results${results}`);
+        let finaldata={
+          response: response,
+          data:data,
+          lat:lat,
+          lng:lng,
+        }
+        console.log(lat);
+        return res.json({ error: false, results,lat,lng});
+        
       })
       .catch((err) => {
         return res.json({ error: true, errorMessage: err });

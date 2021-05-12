@@ -41,6 +41,7 @@ module.exports.getAllSubcategoriesToDisplay = async (req, res) => {
     subcategories.forEach((subcategory,index) => {
       subcategory.subcategories = subcategory.subcategory.map((ele) => {
         return {
+          index,
           subcategory:ele,
           disabler: false,
           selected: false,
@@ -51,6 +52,7 @@ module.exports.getAllSubcategoriesToDisplay = async (req, res) => {
     delete subcategory['subcategory'];
     });
     res.json({ error: false, subcategories });
+    console.log(`here is category data ${subcategories}`)
   } catch (err) {
     return res.json({ error: true, errorMessage: err });
   }

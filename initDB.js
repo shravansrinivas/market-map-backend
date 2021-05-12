@@ -5,12 +5,13 @@ var mongoose = require("mongoose");
 require("dotenv").config();
 
 //Set up default mongoose connection
+
 var mongoDB =
   process.env.MONGO_URL && process.env.MONGO_PORT && process.env.MONGO_DBNAME
     ? `mongodb://${process.env.MONGO_URL}:${process.env.MONGO_PORT}/${process.env.MONGO_DBNAME}`
     : "mongodb://127.0.0.1:27017/market-map";
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 
+mongoose.connect(mongoDB, {useCreateIndex:true, useNewUrlParser: true, useUnifiedTopology: true });
 //Get the default connection
 var db = mongoose.connection;
 
