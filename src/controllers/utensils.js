@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const utensils= require("C:/Users/hp pc/Downloads/utensils.json");
+// const utensils= require("C:/Users/hp pc/Downloads/utensils.json");
 const Establishment = require("../models/Establishment");
 const async = require("async");
 
