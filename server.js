@@ -3,7 +3,8 @@ const express = require("express"),
   compression = require("compression"),
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
-  cors = require("cors");
+  cors = require("cors"),
+  authenticateToken = require("./src/middleware/authenticateToken");
 
 // to load .env
 require("dotenv").config();

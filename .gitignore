@@ -1,3 +1,4 @@
 // dont include any node_modules (size) and sensitive files like .env(secrecy)
 node_modules
 .env
+dump
