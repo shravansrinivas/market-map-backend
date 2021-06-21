@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema({
     },
     addedAt: {
         type: Date,
+        default: Date.now,
     },
     updatedBy: {
         id: {
@@ -49,6 +50,7 @@ const userSchema = new mongoose.Schema({
     },
     updatedAt: {
         type: Date,
+        default: Date.now,
     },
 });
 

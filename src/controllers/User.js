@@ -9,16 +9,16 @@ const authenticateToken = require("../middleware/authenticateToken");
 module.exports = {
     create: async (req, res, next) => {
         const { name, password, role, email, phoneNo } = req.body;
-        const curUser = await User.findById(req.user.id);
-        if (!curUser) {
-            return res.json({
-                status: "error",
-                message: "You are not a registered user",
-            });
-        }
-        const addedBy = { id: curUser._id, name: curUser.name };
-        const today = new Date();
-        const addedAt = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        // const curUser = await User.findById(req.user.id);
+        // if (!curUser) {
+        //     return res.json({
+        //         status: "error",
+        //         message: "You are not a registered admin or super admin",
+        //     });
+        // }
+        // const addedBy = { id: curUser._id, name: curUser.name };
+        // const today = new Date();
+        // const addedAt = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
 
         // const { name, role, email, phoneNo } = req.body;
 
@@ -48,8 +48,8 @@ module.exports = {
             role,
             email,
             phoneNo,
-            addedBy,
-            addedAt,
+            // addedBy,
+            // addedAt,
         });
         try {
             await user.save();
@@ -216,5 +216,45 @@ module.exports = {
             updatedAt,
         };
         User.findOneAndUpdate({ email }, updatedUser);
+    },
+    // returns a list of all users
+    getUsers: async (req, res, next) => {
+        User.find({isDeleted:false})
+            .then((users) => {
+                const usersArray = [];
+                for (let user of users) {
+                    const {
+                        name,
+                        email,
+                        phoneNo,
+                        role,
+                        status,
+                        updatedBy,
+                        updatedAt,
+                        addedBy,
+                        addedAt,
+                    } = user;
+                    console.log(`Updated By ${updatedBy}`);
+                    usersArray.push({
+                        name,
+                        email,
+                        phoneNo,
+                        role,
+                        status,
+                        updatedBy,
+                        updatedAt,
+                        addedBy,
+                        addedAt,
+                    });
+                }
+                res.send(usersArray);
+            })
+            .catch((err) => {
+                res.json({
+                    status: "error",
+                    message: "cannot find users",
+                    error: err,
+                });
+            });
     },
 };
