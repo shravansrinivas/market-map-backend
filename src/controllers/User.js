@@ -85,14 +85,12 @@ module.exports = {
                 message: "Invalid email",
                 data: null,
             });
-        } else {
-            if (user.isDeleted === true) {
-                return res.json({
-                    status: "error",
-                    message: "User does not exist anymore",
-                    data: null,
-                });
-            }
+        } else if (user.isDeleted) {
+            return res.json({
+                status: "error",
+                message: "User does not exist anymore",
+                data: null,
+            });
         }
 
         const isValid = await bcrypt.compare(password, user.password);
@@ -121,7 +119,7 @@ module.exports = {
         // authenticate user before allowing them to delete
 
         console.log(`req body is : `, req.body);
-        const { email, password } = req.body;
+        const { id } = req.body;
 
         // user who is deleting the other user
         const user = await User.findById(req.user.id);
@@ -139,7 +137,7 @@ module.exports = {
             });
         }
 
-        const userToBeDeleted = await User.findOne({ email });
+        const userToBeDeleted = await User.findById(id);
         if (!userToBeDeleted) {
             return res.json({
                 status: "error",
@@ -155,11 +153,13 @@ module.exports = {
                 data: null,
             });
         }
-        // const deletedUser = await User.findOneAndUpdate({ email });
-        const deletedUser = await User.findOneAndUpdate(
-            { email },
-            { isDeleted: true }
-        );
+
+        // const deletedUser = await User.findByIdAndUpdate(id, {
+        //     isDeleted: true,
+        // });
+        userToBeDeleted.isDeleted = true;
+        userToBeDeleted.save();
+
         res.json({
             status: "success",
             message: "Deleted user successfuly",
@@ -259,5 +259,59 @@ module.exports = {
                     error: err,
                 });
             });
+    },
+    // get info about a single user
+    getUser: async (req, res, next) => {
+        const { id } = req.body;
+        await User.findById(id)
+            .then((user) => {
+                console.log(`User is ${user}`);
+                return res.send(user);
+            })
+            .catch((err) => {
+                console.log(err);
+                return res.send({ status: "error", error: err });
+            });
+    },
+    // change password
+    changePassword: async (req, res, next) => {
+        const { id, email, encryptedOldPassword, encryptedNewPassword } =
+            req.body;
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.json({
+                status: "error",
+                message: "User does not exist",
+            });
+        }
+
+        // Decrypting the password
+        const encryptionKey = process.env.REACT_APP_ENCRYPTION_KEY_SECRET;
+        let bytes = CryptoJS.AES.decrypt(encryptedOldPassword, encryptionKey);
+        const oldPassword = bytes.toString(CryptoJS.enc.Utf8);
+        console.log(`Decrypred old password is ${oldPassword}`);
+
+        // verify old password
+        const isValid = await bcrypt.compare(oldPassword, user.password);
+        if (!isValid) {
+            res.json({
+                status: "error",
+                message: "Invalid old password",
+                data: null,
+            });
+        }
+
+        bytes = CryptoJS.AES.decrypt(encryptedNewPassword, encryptionKey);
+        const newPassword = bytes.toString(CryptoJS.enc.Utf8);
+        console.log(`Decrypred new password is ${newPassword}`);
+
+        user.password = newPassword;
+        await user.save();
+
+        res.json({
+            status: "success",
+            message: "Password changed successfully",
+        });
     },
 };

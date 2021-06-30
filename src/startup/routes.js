@@ -13,6 +13,8 @@ const updateUserRoute = require("../routes/update");
 const deleteUserRoute = require("../routes/delete");
 const testAuthRoute = require("../routes/testAuthRoute");
 const getUsers = require("../routes/Users");
+const getUser = require("../routes/getUser");
+const changePasswordRoute = require("../routes/ChangePassword");
 
 module.exports = (app) => {
     // City routes
@@ -48,4 +50,7 @@ module.exports = (app) => {
     app.use(`/testAuth`, testAuthRoute);
 
     app.use(`/users`, getUsers);
+    app.use(`/getUser`, getUser);
+
+    app.use(`/changePassword`, changePasswordRoute);
 };
