@@ -168,7 +168,7 @@ module.exports = {
     },
 
     update: async (req, res, next) => {
-        const { name, email, phoneNo, role, status } = req.body;
+        const { id, name, email, phoneNo, role, status } = req.body;
         const curUser = await User.findById(req.user.id);
         if (!curUser) {
             return res.json({
@@ -177,8 +177,7 @@ module.exports = {
             });
         }
         const updatedBy = { id: curUser._id, name: curUser.name };
-        const today = new Date();
-        const updatedAt = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+        const updatedAt = Date.now();
 
         if (req.user.role === "User") {
             return res.json({
@@ -187,7 +186,7 @@ module.exports = {
             });
         }
 
-        const userToBeUpdated = await User.findOne({ email });
+        const userToBeUpdated = await User.findById(id);
         if (!userToBeUpdated) {
             return res.json({
                 status: "error",
@@ -215,11 +214,13 @@ module.exports = {
             updatedBy,
             updatedAt,
         };
-        User.findOneAndUpdate({ email }, updatedUser);
+        await User.findByIdAndUpdate(id, { $set: updatedUser }, { new: true });
+
+        res.json({ status: "success", message: "User updated" });
     },
     // returns a list of all users
     getUsers: async (req, res, next) => {
-        User.find({isDeleted:false})
+        User.find({ isDeleted: false })
             .then((users) => {
                 const usersArray = [];
                 for (let user of users) {
@@ -233,6 +234,7 @@ module.exports = {
                         updatedAt,
                         addedBy,
                         addedAt,
+                        _id,
                     } = user;
                     console.log(`Updated By ${updatedBy}`);
                     usersArray.push({
@@ -245,6 +247,7 @@ module.exports = {
                         updatedAt,
                         addedBy,
                         addedAt,
+                        _id,
                     });
                 }
                 res.send(usersArray);
