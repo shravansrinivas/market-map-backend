@@ -118,7 +118,6 @@ module.exports = {
         // only admins and superadmins can delete users
         // authenticate user before allowing them to delete
 
-        console.log(`req body is : `, req.body);
         const { id } = req.body;
 
         // user who is deleting the other user
@@ -262,7 +261,7 @@ module.exports = {
     },
     // get info about a single user
     getUser: async (req, res, next) => {
-        const { id } = req.body;
+        const { id } = req.params;
         await User.findById(id)
             .then((user) => {
                 console.log(`User is ${user}`);
