@@ -15,6 +15,8 @@ const testAuthRoute = require("../routes/testAuthRoute");
 const getUsers = require("../routes/Users");
 const getUser = require("../routes/getUser");
 const changePasswordRoute = require("../routes/ChangePassword");
+const GovernmentSchemes = require("../routes/GovernmentSchemes");
+const Training = require("../routes/Training");
 
 module.exports = (app) => {
     // City routes
@@ -38,7 +40,7 @@ module.exports = (app) => {
     app.use(`/rent`, RentLocationRoutes);
     app.use(`/utensil-stores`, utensils);
 
-    app.use(`/requiredlicenses`, RequiredLicenses);
+    app.use(`/required-licenses`, RequiredLicenses);
 
     // Authentication Routes
     app.use(`/login`, loginRoute);
@@ -51,6 +53,8 @@ module.exports = (app) => {
 
     app.use(`/users`, getUsers);
     app.use(`/getUser`, getUser);
-
     app.use(`/changePassword`, changePasswordRoute);
+
+    app.use(`/government-schemes`, GovernmentSchemes);
+    app.use(`/training`, Training);
 };
