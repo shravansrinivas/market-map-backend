@@ -52,8 +52,8 @@ module.exports = (app) => {
     app.use(`/testAuth`, testAuthRoute);
 
     app.use(`/users`, getUsers);
-    app.use(`/getUser`, getUser);
-    app.use(`/changePassword`, changePasswordRoute);
+    app.use(`/get-user`, getUser);
+    app.use(`/change-password`, changePasswordRoute);
 
     app.use(`/government-schemes`, GovernmentSchemes);
     app.use(`/training`, Training);
