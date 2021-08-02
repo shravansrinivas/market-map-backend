@@ -3,6 +3,7 @@ const Subcategory = require("../models/Subcategories");
 const axios = require("axios");
 const Establishment = require("../models/Establishment");
 const shell = require("shelljs");
+const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
 
 // An array of API keys
 
