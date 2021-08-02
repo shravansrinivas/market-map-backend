@@ -34,21 +34,10 @@ function deg2rad(deg) {
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 const updateDB = (url) => {
-    shell.exec("./Backup.sh");
     axios
         .get(url)
         .then((response) => {
             console.log(response);
-            // run bash script to backup data
-            // ---------write code here----------
-
-            // add results to the database
-            // Establishment.collection.drop();
-            await Establishment.deleteMany({}).then(() => {
-                console.log(
-                    "Deleted all documents in establlishment colllection"
-                );
-            });
 
             // adding fetched data to database
             for (let obj of response.results) {
@@ -63,6 +52,16 @@ const updateDB = (url) => {
         .catch((err) => {
             console.log(err);
         });
+};
+
+const backupData = async () => {
+    shell.exec("./Backup.sh");
+};
+
+const deleteData = async () => {
+    await Establishment.deleteMany({}).then(() => {
+        console.log("Deleted all documents in establlishment colllection");
+    });
 };
 
 const fetchData = async () => {
@@ -123,6 +122,8 @@ const fetchData = async () => {
 
 const main = async () => {
     await initDB();
+    await backupData();
+    await deleteData();
     fetchData();
 };
 
