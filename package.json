@@ -30,7 +30,8 @@
     "mailgun-js": "^0.22.0",
     "mongoose": "^5.12.4",
     "morgan": "^1.10.0",
-    "nanoid": "^3.1.23"
+    "nanoid": "^3.1.23",
+    "shelljs": "^0.8.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
