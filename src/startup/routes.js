@@ -17,6 +17,7 @@ const getUser = require("../routes/getUser");
 const changePasswordRoute = require("../routes/ChangePassword");
 const GovernmentSchemes = require("../routes/GovernmentSchemes");
 const Training = require("../routes/Training");
+const LucknowEstablishments = require("../routes/LucknowEstablishments");
 
 module.exports = (app) => {
     // City routes
@@ -57,4 +58,6 @@ module.exports = (app) => {
 
     app.use(`/government-schemes`, GovernmentSchemes);
     app.use(`/training`, Training);
+
+    app.use(`/get-lucknow-establishments`, LucknowEstablishments);
 };

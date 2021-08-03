@@ -4,6 +4,7 @@ const axios = require("axios");
 const Establishment = require("../models/Establishment");
 const shell = require("shelljs");
 const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
+const TOMTOM_API_KEY = process.env.TOMTOM_API_KEY;
 
 // An array of API keys
 
@@ -47,7 +48,7 @@ const updateDB = (url) => {
                 newEstablishment.save();
             }
 
-            console.log("Collection updated");
+            console.log("Establishment added");
         })
         .catch((err) => {
             console.log(err);
@@ -79,7 +80,7 @@ const fetchData = async () => {
     for (const city of cities) {
         const boundaryLat = city.info.locationInfo.boundaryCoordinates.minLat;
         const boundaryLon = city.info.locationInfo.boundaryCoordinates.minLon;
-        for (subCat of subcategories) {
+        for (const subCat of subcategories) {
             if (city.info.generalInfo.isLargeCity) {
                 // if its a large city it will have multiple coordinates
                 const majorCoordinates =
@@ -98,7 +99,7 @@ const fetchData = async () => {
                     const url = `${BASE_API_URL}/${subCat}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
 
                     updateDB(url);
-                    delay(1000);
+                    await delay(1000);
                 }
             } else {
                 const lat = city.info.locationInfo.centerCoordinates.latitude;
@@ -111,10 +112,10 @@ const fetchData = async () => {
                         boundaryLon
                     ) * 1000
                 );
-                const url = `${BASE_API_URL}/${subCat}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
+                const url = `${BASE_API_URL}/${subCat.name}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
 
                 updateDB(url);
-                delay(1000);
+                await delay(1000);
             }
         }
     }
@@ -124,7 +125,7 @@ const main = async () => {
     await initDB();
     await backupData();
     await deleteData();
-    fetchData();
+    await fetchData();
 };
 
 // main();
