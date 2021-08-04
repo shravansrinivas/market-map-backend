@@ -1,10 +1,12 @@
 const {
-  handleGetAllEstablishmentsInACity,
-  handleGetTopMarketAreasInACity,
-  getLocationAdvisorScore,
-  getEstablishmentsAroundAnAddress,
-  handlePostEstablishment,
+    handleGetAllEstablishmentsInACity,
+    handleGetTopMarketAreasInACity,
+    getLocationAdvisorScore,
+    getEstablishmentsAroundAnAddress,
+    handlePostEstablishment,
 } = require("../controllers/Establishment");
+
+const { newLocationAdvisor } = require("../controllers/LocationAdvisorAlgo");
 
 const router = require("express").Router();
 
@@ -19,7 +21,8 @@ router.get(`/:cityName`, handleGetAllEstablishmentsInACity);
 
 // location advisor
 router.put(`/locationadvisor`, getLocationAdvisorScore);
+// router.put(`/locationadvisor`, newLocationAdvisor);
 
-router.post(`/newshop`,handlePostEstablishment);
+router.post(`/newshop`, handlePostEstablishment);
 
 module.exports = router;
