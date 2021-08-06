@@ -92,7 +92,7 @@ module.exports = {
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
-            res.json({
+            return res.json({
                 status: "error",
                 message: "Invalid email/password!!!",
                 data: null,
@@ -109,6 +109,9 @@ module.exports = {
             status: "success",
             message: "user found",
             token: token,
+            role: user.role,
+            id: user._id,
+            name: user.name,
         });
     },
     delete: async (req, res, next) => {
