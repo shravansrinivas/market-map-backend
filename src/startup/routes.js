@@ -17,7 +17,9 @@ const getUser = require("../routes/getUser");
 const changePasswordRoute = require("../routes/ChangePassword");
 const GovernmentSchemes = require("../routes/GovernmentSchemes");
 const Training = require("../routes/Training");
+const FetchData = require("../routes/FetchData");
 const LucknowEstablishments = require("../routes/LucknowEstablishments");
+const MuzaffarpurEstablishments = require("../routes//MuzaffarpurEstablishments");
 
 module.exports = (app) => {
     // City routes
@@ -60,4 +62,8 @@ module.exports = (app) => {
     app.use(`/training`, Training);
 
     app.use(`/get-lucknow-establishments`, LucknowEstablishments);
+
+    app.use(`/fetch-data`, FetchData);
+
+    app.use(`/get-muzaffarpur-establishments`, MuzaffarpurEstablishments);
 };

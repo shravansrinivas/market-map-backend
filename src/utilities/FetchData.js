@@ -34,18 +34,25 @@ function deg2rad(deg) {
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const updateDB = (url) => {
+const updateDB = async (url) => {
     axios
         .get(url)
-        .then((response) => {
+        .then(async (response) => {
             console.log(response);
 
             // adding fetched data to database
-            for (let obj of response.results) {
-                const newEstablishment = new Establishment({
-                    ...obj,
+            for (let obj of response.data.results) {
+                // const newEstablishment = new Establishment({
+                //     ...obj,
+                // });
+                // newEstablishment.save();
+
+                const filter = { id: obj.id };
+                const update = { ...obj };
+
+                await Establishment.findOneAndUpdate(filter, update, {
+                    upsert: true,
                 });
-                newEstablishment.save();
             }
 
             console.log("Establishment added");
@@ -98,7 +105,7 @@ const fetchData = async () => {
                     );
                     const url = `${BASE_API_URL}/${subCat}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
 
-                    updateDB(url);
+                    await updateDB(url);
                     await delay(1000);
                 }
             } else {
@@ -114,18 +121,22 @@ const fetchData = async () => {
                 );
                 const url = `${BASE_API_URL}/${subCat.name}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
 
-                updateDB(url);
+                await updateDB(url);
                 await delay(1000);
             }
         }
     }
 };
 
-const main = async () => {
-    await initDB();
-    await backupData();
-    await deleteData();
-    await fetchData();
+const main = async (req, res, next) => {
+    // await initDB();
+    // await backupData();
+    // await deleteData();
+    // await fetchData();
+
+    res.json({ message: "This is the fetch data route" });
 };
+
+module.exports = { main };
 
 // main();

@@ -3,7 +3,6 @@ const Subcategory = require("../models/Subcategories");
 const axios = require("axios");
 const LucknowEstablishments = require("../models/LucknowEstablishments");
 const shell = require("shelljs");
-const Lucknow = require("../models/LucknowEstablishments");
 
 // An array of API keys
 
@@ -41,8 +40,19 @@ const addToDB = (url) => {
 
             // adding fetched data to database
             for (const obj of response.data.results) {
-                const newEstablishment = new LucknowEstablishments({ ...obj });
-                newEstablishment.save();
+                // const newEstablishment = new LucknowEstablishments({ ...obj });
+                // newEstablishment.save();
+
+                // Using the upsert option, you can use findOneAndUpdate() as a find-and-upsert operation.
+                // An upsert behaves like a normal findOneAndUpdate() if it finds a document that matches filter.
+                // But, if no document matches filter, MongoDB will insert one by combining filter and update
+                const filter = { id: obj.id };
+                const update = { ...obj };
+
+                await LucknowEstablishments.findOneAndUpdate(filter, update, {
+                    new: true,
+                    upsert: true,
+                });
             }
 
             console.log("Establishment added");
@@ -97,8 +107,8 @@ const fetchData = async () => {
             const url = `${BASE_API_URL}/${subCat.name}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
             console.log(`url is ${url}`);
 
-            await addToDB(url);
-            await delay(3000);
+            // await addToDB(url);
+            // await delay(3000);
         }
     }
 };
@@ -107,7 +117,7 @@ const main = async () => {
     await initDB();
     await delay(3000);
     console.log(`Waited 3s`);
-    await fetchData();
+    // await fetchData();
 };
 
 main();
