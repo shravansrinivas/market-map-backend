@@ -3,10 +3,11 @@ const Subcategory = require("../models/Subcategories");
 const axios = require("axios");
 const Establishment = require("../models/Establishment");
 const shell = require("shelljs");
-const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
-const TOMTOM_API_KEY = process.env.TOMTOM_API_KEY;
+require("dotenv").config();
 
 // An array of API keys
+const API_KEYS_ARRAY = process.env.TOMTOM_API_KEYS_STRING.split(",");
+const noOfApiKeys = API_KEYS_ARRAY.length;
 
 // connect to mongodb
 const initDB = async () => {
@@ -34,34 +35,6 @@ function deg2rad(deg) {
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const updateDB = async (url) => {
-    axios
-        .get(url)
-        .then(async (response) => {
-            console.log(response);
-
-            // adding fetched data to database
-            for (let obj of response.data.results) {
-                // const newEstablishment = new Establishment({
-                //     ...obj,
-                // });
-                // newEstablishment.save();
-
-                const filter = { id: obj.id };
-                const update = { ...obj };
-
-                await Establishment.findOneAndUpdate(filter, update, {
-                    upsert: true,
-                });
-            }
-
-            console.log("Establishment added");
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-};
-
 const backupData = async () => {
     shell.exec("./Backup.sh");
 };
@@ -74,69 +47,121 @@ const deleteData = async () => {
 
 const fetchData = async () => {
     const cities = await City.find({});
-    // for (let i = 0; i < 20; i++) {
-    //     console.log(cities[i].cityName);
-    // }
 
     // There are 221 subcategories
     const subcategories = await Subcategory.find({});
-    // for (let subCat of subcategories) {
-    //     console.log(subCat);
-    // }
+
+    const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
+    const TOMTOM_API_KEY = process.env.TOMTOM_API_KEY;
+
+    let apiCalls = 0;
+    let apiKeysArrayIndex = 0;
 
     for (const city of cities) {
-        const boundaryLat = city.info.locationInfo.boundaryCoordinates.minLat;
-        const boundaryLon = city.info.locationInfo.boundaryCoordinates.minLon;
-        for (const subCat of subcategories) {
-            if (city.info.generalInfo.isLargeCity) {
-                // if its a large city it will have multiple coordinates
-                const majorCoordinates =
-                    city.info.locationInfo.majorCoordinates;
-                for (const coordinate of majorCoordinates) {
-                    const lat = coordinate.latitude;
-                    const lon = coordinate.longitude;
-                    const radius = Math.round(
-                        getDistanceFromLatLonInKm(
-                            lat,
-                            lon,
-                            boundaryLat,
-                            boundaryLon
-                        ) * 1000
-                    );
-                    const url = `${BASE_API_URL}/${subCat}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
+        const boundaryLat = city.info.locationInfo.boundaryCoordinates.maxLat;
+        const boundaryLon = city.info.locationInfo.boundaryCoordinates.maxLon;
+        const lat = city.info.locationInfo.centerCoordinates.latitude;
+        const lon = city.info.locationInfo.centerCoordinates.longitude;
 
-                    await updateDB(url);
-                    await delay(1000);
-                }
-            } else {
-                const lat = city.info.locationInfo.centerCoordinates.latitude;
-                const lon = city.info.locationInfo.centerCoordinates.longitude;
-                const radius = Math.round(
-                    getDistanceFromLatLonInKm(
+        for (const subCat of subcategories) {
+            const radius = Math.round(
+                getDistanceFromLatLonInKm(lat, lon, boundaryLat, boundaryLon) *
+                    1000
+            );
+
+            let offset = 0;
+            let totalCallsRequired = 1;
+            // To keep track of iterations
+            // Only calculate totalCallsRequired during first iteration
+            let i = 0;
+
+            while (totalCallsRequired > 0) {
+                totalCallsRequired--;
+                const url = `${BASE_API_URL}/${subCat.name}.json/`;
+                // console.log(`url is ${url}`);
+                const config = {
+                    params: {
+                        key: API_KEYS_ARRAY[apiKeysArrayIndex],
                         lat,
                         lon,
-                        boundaryLat,
-                        boundaryLon
-                    ) * 1000
-                );
-                const url = `${BASE_API_URL}/${subCat.name}.json?key=${TOMTOM_API_KEY}&lat=${lat}&lon=${lon}&radius=${radius}`;
+                        radius,
+                        limit: 100,
+                        ofs: offset,
+                    },
+                };
+                // console.log(`config is`, config);
 
-                await updateDB(url);
-                await delay(1000);
+                axios
+                    .get(url, config)
+                    .then(async (response) => {
+                        const res = response.data;
+
+                        apiCalls++;
+                        if (
+                            apiCalls === 2500 &&
+                            apiKeysArrayIndex <= noOfApiKeys
+                        ) {
+                            apiCalls = 0;
+                            apiKeysArrayIndex++;
+                        }
+
+                        if (i == 0) {
+                            const totalResults = res.summary.totalResults;
+                            totalCallsRequired = Math.floor(totalResults / 100);
+                            if (totalResults % 100 === 0) {
+                                totalCallsRequired -= 1;
+                            }
+                        }
+
+                        // saving data to database
+                        for (const obj of res.results) {
+                            const filter = { id: obj.id };
+                            const update = { ...obj };
+
+                            await Establishment.findOneAndUpdate(
+                                filter,
+                                update,
+                                { new: true, upsert: true }
+                            );
+                        }
+
+                        console.log(
+                            `${subCat.name} added to database, API call number : ${i}`
+                        );
+                    })
+                    .catch((err) => {
+                        console.log(`Error in ${subCat.name} is `, err);
+                    });
             }
+
+            i++;
+            offset += 100;
+            await delay(1000);
         }
     }
 };
 
+const test = () => {
+    console.log(`API KEYS`, API_KEYS_ARRAY);
+    console.log(`Size of api keys is ${noOfApiKeys}`);
+
+    for (const key of API_KEYS_ARRAY) {
+        console.log(key);
+    }
+
+    console.log(API_KEYS_ARRAY[3]);
+};
+
 const main = async (req, res, next) => {
     // await initDB();
+    // await delay(3000);
+    // console.log(`Waited for 3s`);
     // await backupData();
     // await deleteData();
     // await fetchData();
-
-    res.json({ message: "This is the fetch data route" });
+    test();
 };
 
-module.exports = { main };
+main();
 
-// main();
+module.exports = { main };
