@@ -62,13 +62,11 @@ const fetchData = async () => {
         const boundaryLon = city.info.locationInfo.boundaryCoordinates.maxLon;
         const lat = city.info.locationInfo.centerCoordinates.latitude;
         const lon = city.info.locationInfo.centerCoordinates.longitude;
+        const radius = Math.round(
+            getDistanceFromLatLonInKm(lat, lon, boundaryLat, boundaryLon) * 1000
+        );
 
         for (const subCat of subcategories) {
-            const radius = Math.round(
-                getDistanceFromLatLonInKm(lat, lon, boundaryLat, boundaryLon) *
-                    1000
-            );
-
             let offset = 0;
             let totalCallsRequired = 1;
             // To keep track of iterations
