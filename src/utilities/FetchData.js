@@ -141,16 +141,16 @@ const fetchData = async () => {
     }
 };
 
-const test = () => {
-    console.log(`API KEYS`, API_KEYS_ARRAY);
-    console.log(`Size of api keys is ${noOfApiKeys}`);
+// const test = () => {
+//     console.log(`API KEYS`, API_KEYS_ARRAY);
+//     console.log(`Size of api keys is ${noOfApiKeys}`);
 
-    for (const key of API_KEYS_ARRAY) {
-        console.log(key);
-    }
+//     for (const key of API_KEYS_ARRAY) {
+//         console.log(key);
+//     }
 
-    console.log(API_KEYS_ARRAY[3]);
-};
+//     console.log(API_KEYS_ARRAY[3]);
+// };
 
 const main = async (req, res, next) => {
     // await initDB();
@@ -159,9 +159,9 @@ const main = async (req, res, next) => {
     // await backupData();
     // await deleteData();
     // await fetchData();
-    test();
+    // test();
 };
 
-main();
+// main();
 
 module.exports = { main };
