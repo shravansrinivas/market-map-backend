@@ -52,13 +52,13 @@ The `fetchData` function -
 
 ## Variables
 
-#####`cityName`
+######cityName
 String containing name of the city
 
-#####`schemaName`
+######schemaName
 String containing name of the schema
 
-#####`schema`
+######schema
 It is an array of objects. Each object contains -
 
 -   \_id (String)
