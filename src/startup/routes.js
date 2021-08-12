@@ -20,6 +20,7 @@ const Training = require("../routes/Training");
 const FetchData = require("../routes/FetchData");
 const LucknowEstablishments = require("../routes/LucknowEstablishments");
 const MuzaffarpurEstablishments = require("../routes//MuzaffarpurEstablishments");
+const FetchDataCity = require("../routes/FetchDataCity");
 
 module.exports = (app) => {
     // City routes
@@ -66,4 +67,6 @@ module.exports = (app) => {
     app.use(`/fetch-data`, FetchData);
 
     app.use(`/get-muzaffarpur-establishments`, MuzaffarpurEstablishments);
+
+    app.use(`/fetch-data/city`, FetchDataCity);
 };

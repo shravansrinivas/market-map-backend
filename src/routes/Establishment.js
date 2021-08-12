@@ -20,8 +20,8 @@ router.put(`/aroundAddress`, getEstablishmentsAroundAnAddress);
 router.get(`/:cityName`, handleGetAllEstablishmentsInACity);
 
 // location advisor
-router.put(`/locationadvisor`, getLocationAdvisorScore);
-// router.put(`/locationadvisor`, newLocationAdvisor);
+// router.put(`/locationadvisor`, getLocationAdvisorScore);
+router.put(`/locationadvisor`, newLocationAdvisor);
 
 router.post(`/newshop`, handlePostEstablishment);
 

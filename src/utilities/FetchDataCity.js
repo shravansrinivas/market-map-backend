@@ -1,7 +1,7 @@
 const City = require("../models/City");
 const Subcategory = require("../models/Subcategories");
 const axios = require("axios");
-const MuzaffarpurEstablishment = require("../models/MuzaffarpurEstablishments");
+const Establishment = require("../models/Establishment");
 
 // connect to mongodb
 const initDB = async () => {
@@ -10,16 +10,38 @@ const initDB = async () => {
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const fetchData = async () => {
-    const CityArr = await City.find({ cityName: "Muzaffarpur" });
-    const Muzaffarpur = CityArr[0];
+const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(lat2 - lat1); // deg2rad below
+    var dLon = deg2rad(lon2 - lon1);
+    var a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) *
+            Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c; // Distance in km
+    return d;
+};
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}
+
+const fetchData = async (cityName) => {
+    const city = await City.findOne({ cityName });
 
     // There are 221 subcategories
     const subcategories = await Subcategory.find({});
 
-    const lat = Muzaffarpur.info.locationInfo.centerCoordinates.latitude;
-    const lon = Muzaffarpur.info.locationInfo.centerCoordinates.longitude;
-    const radius = 3000;
+    const boundaryLat = city.info.locationInfo.boundaryCoordinates.maxLat;
+    const boundaryLon = city.info.locationInfo.boundaryCoordinates.maxLon;
+    const lat = city.info.locationInfo.centerCoordinates.latitude;
+    const lon = city.info.locationInfo.centerCoordinates.longitude;
+    const radius = Math.round(
+        getDistanceFromLatLonInKm(lat, lon, boundaryLat, boundaryLon) * 1000
+    );
 
     for (const subCat of subcategories) {
         const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
@@ -63,11 +85,10 @@ const fetchData = async () => {
                         const filter = { id: obj.id };
                         const update = { ...obj };
 
-                        await MuzaffarpurEstablishment.findOneAndUpdate(
-                            filter,
-                            update,
-                            { new: true, upsert: true }
-                        );
+                        await Establishment.findOneAndUpdate(filter, update, {
+                            new: true,
+                            upsert: true,
+                        });
                     }
 
                     console.log(
@@ -85,11 +106,19 @@ const fetchData = async () => {
     }
 };
 
-const main = async () => {
-    await initDB();
-    await delay(3000);
-    console.log(`Waited 3s`);
-    // await fetchData();
+const test = async (cityName) => {
+    console.log(`You hit this ${cityName}`);
+    return "Yo Yo Honey Singh";
 };
 
-main();
+const main = async (cityName) => {
+    // await initDB();
+    // await delay(3000);
+    // console.log(`Waited 3s`);
+    // await fetchData(cityName);
+    return await test(cityName);
+};
+
+// main();
+
+module.exports = { main };
