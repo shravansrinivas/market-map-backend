@@ -2,6 +2,11 @@ const City = require("../models/City");
 const Subcategory = require("../models/Subcategories");
 const axios = require("axios");
 const Establishment = require("../models/Establishment");
+require("dotenv").config();
+
+// An array of API keys
+const API_KEYS_ARRAY = process.env.TOMTOM_API_KEYS_STRING.split(",");
+const noOfApiKeys = API_KEYS_ARRAY.length;
 
 // connect to mongodb
 const initDB = async () => {
@@ -43,6 +48,9 @@ const fetchData = async (cityName) => {
         getDistanceFromLatLonInKm(lat, lon, boundaryLat, boundaryLon) * 1000
     );
 
+    let apiCalls = 0;
+    let apiKeysArrayIndex = 0;
+
     for (const subCat of subcategories) {
         const BASE_API_URL = process.env.TOMTOM_API_SEARCH_BASE_URL;
         const TOMTOM_API_KEY = process.env.TOMTOM_API_KEY;
@@ -59,7 +67,7 @@ const fetchData = async (cityName) => {
 
             const config = {
                 params: {
-                    key: TOMTOM_API_KEY,
+                    key: API_KEYS_ARRAY[apiKeysArrayIndex],
                     lat,
                     lon,
                     radius,
@@ -72,6 +80,13 @@ const fetchData = async (cityName) => {
                 .get(url, config)
                 .then(async (response) => {
                     const res = response.data;
+
+                    apiCalls++;
+                    if (apiCalls === 2500 && apiKeysArrayIndex <= noOfApiKeys) {
+                        apiCalls = 0;
+                        apiKeysArrayIndex++;
+                    }
+
                     if (i == 0) {
                         const totalResults = response.data.summary.totalResults;
                         totalCallsRequired = Math.floor(totalResults / 100);
@@ -106,17 +121,15 @@ const fetchData = async (cityName) => {
     }
 };
 
-const test = async (cityName) => {
-    console.log(`You hit this ${cityName}`);
-    return "Yo Yo Honey Singh";
-};
-
 const main = async (cityName) => {
-    // await initDB();
-    // await delay(3000);
-    // console.log(`Waited 3s`);
-    // await fetchData(cityName);
-    return await test(cityName);
+    await initDB();
+    await delay(3000);
+    console.log(`Waited 3s`);
+    await fetchData(cityName);
+
+    // set flag to false
+    const updatedFlag = { isDataBeingFetched: false };
+    await City.findOneAndUpdate({ cityName }, { $set: updatedFlag });
 };
 
 // main();

@@ -164,15 +164,13 @@ module.exports.newLocationAdvisor = async (req, res) => {
             });
         }
 
-        // if (schemaName) {
-        //     let locationAdvisorSchema = new LocationAdvisorSchema({
-        //         schemaName: schemaName,
-        //         // idealForBusiness: { type: String, default: "" },
-
-        //         subcategories: schema,
-        //     });
-        //     await locationAdvisorSchema.save();
-        // }
+        if (schemaName) {
+            let locationAdvisorSchema = new LocationAdvisorSchema({
+                schemaName: schemaName,
+                subcategories: schema,
+            });
+            await locationAdvisorSchema.save();
+        }
 
         return res.json({
             error: false,
@@ -180,10 +178,10 @@ module.exports.newLocationAdvisor = async (req, res) => {
             schemaMessage: schemaName ? `Schema saved as ${schemaName}` : null,
         });
 
-        return res.json({
-            error: true,
-            errorMessage: `Not an actual error`,
-        });
+        // return res.json({
+        //     error: true,
+        //     errorMessage: `Not an actual error`,
+        // });
     } catch (err) {
         console.log(err);
         return res.json({ error: true, errorMessage: err });
