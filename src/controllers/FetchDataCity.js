@@ -5,6 +5,10 @@ module.exports = {
     fetchDataCityController: async (req, res, next) => {
         const { cityName } = req.params;
 
+        if (!cityName) {
+            return res.json({ error: true, message: "City name is required" });
+        }
+
         // update last refreshed at date for the city
         const lastRefreshedAt = Date.now();
         const updatedCity = { lastRefreshedAt };
