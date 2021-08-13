@@ -61,6 +61,8 @@ const fetchData = async (cityName) => {
         // Only calculate totalCallsRequires during first result
         let i = 0;
 
+        console.log(`Fetching data for ${subCat.name}`);
+
         while (totalCallsRequired > 0) {
             totalCallsRequired--;
             const url = `${BASE_API_URL}/${subCat.name}.json/`;
