@@ -128,8 +128,9 @@ const main = async (cityName) => {
     await fetchData(cityName);
 
     // set flag to false
-    const updatedFlag = { isDataBeingFetched: false };
-    await City.findOneAndUpdate({ cityName }, { $set: updatedFlag });
+    const doc = await City.findOne({ cityName });
+    doc.isDataBeingFetched = false;
+    await doc.save();
 };
 
 // main();

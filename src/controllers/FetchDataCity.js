@@ -9,14 +9,25 @@ module.exports = {
             return res.json({ error: true, message: "City name is required" });
         }
 
+        const doc = await City.findOne({ cityName });
+        if (!doc) {
+            return res.json({
+                error: true,
+                message: "Cannot find city in the database",
+            });
+        }
+
+        console.log(doc);
+
         // update last refreshed at date for the city
         const lastRefreshedAt = Date.now();
-        const updatedCity = { lastRefreshedAt };
-        await City.findOneAndUpdate({ cityName }, { $set: updatedCity });
+        doc.lastRefreshedAt = lastRefreshedAt;
 
         // setting isBeingFetched to true
-        const updatedFlag = { isDataBeingFetched: true };
-        await City.findByIdAndUpdate({ cityName }, { $set: updatedFlag });
+        doc.isDataBeingFetched = true;
+
+        // saving the changes
+        await doc.save();
 
         fetchDataCity(cityName);
 
