@@ -27,7 +27,7 @@ const schema = new mongoose.Schema({
       population: { type: Number, default: null },
     },
   },
-  lastRefreshedAt: { type: Boolean, default: Date.now },
+  lastRefreshedAt: { type: Date, default: Date.now },
   isDataBeingFetched : {type: Boolean, default: false}
 });
 
