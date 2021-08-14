@@ -16,7 +16,7 @@ const topMarketAreasInACity = async (city) => {
             },
         },
         {
-            $match: { shopCounts: { $gte: 1 } },
+            $match: { shopCounts: { $gte: 30 } },
         },
         {
             $sort: { shopCounts: -1 },
@@ -92,8 +92,21 @@ module.exports.newLocationAdvisor = async (req, res) => {
             });
         }
 
+        // get category with maximum radius from selected categories
+        // set {lat,lon} corresponding to each category
+        const maxRadius = 0;
+        const coordinateMap = new Map();
+
+        for (const category of schemaCategories) {
+            const { radius } = category;
+            maxRadius = Math.max(maxRadius, radius);
+
+            const { lat, lon } = metresToLatLong(radius);
+            coordinateMap.set(category, { lat, lon });
+        }
+
         let topMarketAreas = await topMarketAreasInACity(cityName);
-        console.log(`Top market areas are`, topMarketAreas);
+        // console.log(`Top market areas are`, topMarketAreas);
         console.log(`Top market areas size is ${topMarketAreas.length}`);
 
         const marketAreasResult = [];
@@ -104,32 +117,105 @@ module.exports.newLocationAdvisor = async (req, res) => {
             let scoreArray = [];
             let scores = [];
 
-            for (const category of schemaCategories) {
-                let { radius, subcategory, disabler, weight } = category;
-                let { lat, lon } = metresToLatLong(radius);
-                let score = await Establishment.countDocuments({
-                    "position.lat": {
-                        $gte: avgLat - lat,
-                        $lte: avgLat + lat,
+            const { lat: maxLat, lon: maxLon } = metresToLatLong(maxRadius);
+            // aggregation
+            let arr = Establishment.aggregate([
+                {
+                    // Doubt
+                    $match: {
+                        "position.lat": {
+                            $gte: avgLat - maxLat,
+                            $lte: avgLat + maxLat,
+                        },
+                        "position.lon": {
+                            $gte: avgLon - maxLon,
+                            $lte: avgLon + maxLon,
+                        },
                     },
-                    "position.lon": {
-                        $gte: avgLon - lon,
-                        $lte: avgLon + lon,
+                },
+                {
+                    $unwiwnd: {
+                        path: "$poi.categories",
+                        preserveNullAndEmptyArrays: false,
                     },
-                    "poi.categories": {
-                        $in: [subcategory],
+                },
+                {
+                    $match: {
+                        _id: { $in: schemaCategories },
                     },
-                });
-                score = (disabler ? -1 * score : score) * (weight || 1);
-                console.log(`For category ${subcategory}, score is $ ${score}`);
+                },
+                {
+                    $project: {
+                        latitude: {
+                            $cond: [
+                                { $in: ["$poi.categories", schemaCategories] },
+                                coordinateMap.get("$poi.categories").lat, //executed if cond is true
+                                "$position.lat", //executed if cond is false
+                            ],
+                        },
+                        longitude: {
+                            $cond: [
+                                { $in: ["$poi.categories", schemaCategories] },
+                                coordinateMap.get("$poi.categories").lon,
+                                "$position.lon",
+                            ],
+                        },
+                    },
+                },
+                {
+                    $match: {
+                        "position.lat": {
+                            $gte: avgLat - "$latitude",
+                            $lte: avgLat + "$latitude",
+                        },
+                        "position.lon": {
+                            $gte: avgLon - "$longitude",
+                            $lte: avgLon + "$longitude",
+                        },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$poi.categories",
+                        count: {
+                            $sum: 1,
+                        },
+                    },
+                },
+                {
+                    $addFields: { category: "$_id" },
+                },
+                {
+                    $project: { _id: 0 },
+                },
+            ]);
 
-                scoreArray.push({
-                    ...category,
-                    score,
-                    weight: weight || 1,
-                });
-                scores.push(score);
-            }
+            // for (const category of schemaCategories) {
+            //     let { radius, subcategory, disabler, weight } = category;
+            //     let { lat, lon } = metresToLatLong(radius);
+            //     let score = await Establishment.countDocuments({
+            //         "position.lat": {
+            //             $gte: avgLat - lat,
+            //             $lte: avgLat + lat,
+            //         },
+            //         "position.lon": {
+            //             $gte: avgLon - lon,
+            //             $lte: avgLon + lon,
+            //         },
+            //         "poi.categories": {
+            //             $in: [subcategory],
+            //         },
+            //     });
+            //     score = (disabler ? -1 * score : score) * (weight || 1);
+            //     console.log(`For category ${subcategory}, score is $ ${score}`);
+
+            //     scoreArray.push({
+            //         ...category,
+            //         score,
+            //         weight: weight || 1,
+            //     });
+            //     scores.push(score);
+            // }
 
             console.log(`Score array is `, scoreArray);
             console.log(`Scores are `, scores);
