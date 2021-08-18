@@ -16,7 +16,7 @@ const topMarketAreasInACity = async (city) => {
             },
         },
         {
-            $match: { shopCounts: { $gte: 30 } },
+            $match: { shopCounts: { $gte: 40 } },
         },
         {
             $sort: { shopCounts: -1 },
@@ -31,6 +31,10 @@ const metresToLatLong = (metres) => {
     // Longitude: 1 deg = 111.320*cos(latitude) km
     let lat = (1 / 110574) * metres;
     let lon = 1 / (111320 * Math.cos(lat));
+
+    lat = parseFloat(lat.toFixed(6));
+    lon = parseFloat(lon.toFixed(6));
+
     return { lat, lon };
 };
 
@@ -94,19 +98,42 @@ module.exports.newLocationAdvisor = async (req, res) => {
 
         // get category with maximum radius from selected categories
         // set {lat,lon} corresponding to each category
-        const maxRadius = 0;
-        const coordinateMap = new Map();
+        let maxRadius = 0;
+        const coordinateMap = [];
+        const subcategoriesArray = [];
+        const disablertSet = new Set();
 
         for (const category of schemaCategories) {
-            const { radius } = category;
+            const { radius, subcategory, disabler } = category;
             maxRadius = Math.max(maxRadius, radius);
 
             const { lat, lon } = metresToLatLong(radius);
-            coordinateMap.set(category, { lat, lon });
+            coordinateMap.push({ key: subcategory, lat, lon });
+
+            subcategoriesArray.push(subcategory);
+
+            if (disabler) {
+                disablertSet.add(subcategory);
+            }
+        }
+
+        console.log(`Subcategories are : `, subcategoriesArray);
+
+        console.log(`Max radius is: ${maxRadius}`);
+        // for (const [key, value] of coordinateMap) {
+        //     console.log(key, "=", value);
+        // }
+        for (const obj of coordinateMap) {
+            console.log(`${obj.key} = ${obj.lat}, ${obj.lon}`);
+            console.log(typeof obj.lat);
+        }
+
+        for (let item of disablertSet) {
+            console.log(item);
         }
 
         let topMarketAreas = await topMarketAreasInACity(cityName);
-        // console.log(`Top market areas are`, topMarketAreas);
+        console.log(`Top market areas are`, topMarketAreas);
         console.log(`Top market areas size is ${topMarketAreas.length}`);
 
         const marketAreasResult = [];
@@ -119,9 +146,8 @@ module.exports.newLocationAdvisor = async (req, res) => {
 
             const { lat: maxLat, lon: maxLon } = metresToLatLong(maxRadius);
             // aggregation
-            let arr = Establishment.aggregate([
+            let arr = await Establishment.aggregate([
                 {
-                    // Doubt
                     $match: {
                         "position.lat": {
                             $gte: avgLat - maxLat,
@@ -134,46 +160,100 @@ module.exports.newLocationAdvisor = async (req, res) => {
                     },
                 },
                 {
-                    $unwiwnd: {
+                    $unwind: {
                         path: "$poi.categories",
                         preserveNullAndEmptyArrays: false,
                     },
                 },
                 {
                     $match: {
-                        _id: { $in: schemaCategories },
+                        "poi.categories": { $in: subcategoriesArray },
                     },
                 },
                 {
-                    $project: {
+                    $addFields: {
                         latitude: {
-                            $cond: [
-                                { $in: ["$poi.categories", schemaCategories] },
-                                coordinateMap.get("$poi.categories").lat, //executed if cond is true
-                                "$position.lat", //executed if cond is false
-                            ],
+                            $let: {
+                                vars: { latLonMap: coordinateMap },
+                                in: {
+                                    $setDifference: [
+                                        {
+                                            $map: {
+                                                input: "$$latLonMap",
+                                                as: "subcategory",
+                                                in: {
+                                                    $cond: [
+                                                        {
+                                                            $eq: [
+                                                                "$$subcategory.key",
+                                                                "$poi.categories",
+                                                            ],
+                                                        },
+                                                        "$$subcategory.lat",
+                                                        false,
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                        [false],
+                                    ],
+                                },
+                            },
                         },
                         longitude: {
-                            $cond: [
-                                { $in: ["$poi.categories", schemaCategories] },
-                                coordinateMap.get("$poi.categories").lon,
-                                "$position.lon",
-                            ],
+                            $let: {
+                                vars: { latLonMap: coordinateMap },
+                                in: {
+                                    $setDifference: [
+                                        {
+                                            $map: {
+                                                input: "$$latLonMap",
+                                                as: "subcategory",
+                                                in: {
+                                                    $cond: [
+                                                        {
+                                                            $eq: [
+                                                                "$$subcategory.key",
+                                                                "$poi.categories",
+                                                            ],
+                                                        },
+                                                        "$$subcategory.lon",
+                                                        false,
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                        [false],
+                                    ],
+                                },
+                            },
                         },
                     },
                 },
                 {
-                    $match: {
-                        "position.lat": {
-                            $gte: avgLat - "$latitude",
-                            $lte: avgLat + "$latitude",
-                        },
-                        "position.lon": {
-                            $gte: avgLon - "$longitude",
-                            $lte: avgLon + "$longitude",
-                        },
+                    $unwind: {
+                        path: "$latitude",
+                        preserveNullAndEmptyArrays: false,
                     },
                 },
+                {
+                    $unwind: {
+                        path: "$longitude",
+                        preserveNullAndEmptyArrays: false,
+                    },
+                },
+                // {
+                //     $match: {
+                //         "position.lat": {
+                //             $gte: avgLat - "$latitude",
+                //             $lte: avgLat + "$latitude",
+                //         },
+                //         "position.lon": {
+                //             $gte: avgLon - "$longitude",
+                //             $lte: avgLon + "$longitude",
+                //         },
+                //     },
+                // },
                 {
                     $group: {
                         _id: "$poi.categories",
@@ -189,6 +269,43 @@ module.exports.newLocationAdvisor = async (req, res) => {
                     $project: { _id: 0 },
                 },
             ]);
+
+            console.log(`arr after aggregation is `, arr);
+
+            // set disabler score to -1
+            // flag to check if arr has a disabler
+            let flag = false;
+            for (let obj of arr) {
+                const { count, category } = obj;
+
+                let score = 0;
+                if (disablertSet.has(category)) {
+                    score = -1 * count;
+                    flag = true;
+                } else {
+                    score = count;
+                }
+
+                scoreArray.push({ category, score, weight: 1 });
+                scores.push(score);
+            }
+
+            let areaScore = sumOfElements(scores);
+            if (!flag) {
+                areaScore = (arr.length / schemaCategories.length) * 10;
+            } else {
+                const enablersPlusDisablers = totalEnablersAndDisablers(scores);
+                if (enablersPlusDisablers != 0) {
+                    areaScore = (areaScore / enablersPlusDisablers) * 10;
+                }
+            }
+
+            if (areaScore < 0) areaScore = 0;
+
+            console.log(`${marketArea._id} score is ${areaScore}`);
+
+            // adding this to the final result
+            marketAreasResult.push({ ...marketArea, scoreArray, areaScore });
 
             // for (const category of schemaCategories) {
             //     let { radius, subcategory, disabler, weight } = category;
@@ -217,29 +334,29 @@ module.exports.newLocationAdvisor = async (req, res) => {
             //     scores.push(score);
             // }
 
-            console.log(`Score array is `, scoreArray);
-            console.log(`Scores are `, scores);
+            // console.log(`Score array is `, scoreArray);
+            // console.log(`Scores are `, scores);
 
-            let areaScore = sumOfElements(scores);
-            const enablersPlusDisablers = totalEnablersAndDisablers(scores);
-            if (enablersPlusDisablers != 0) {
-                areaScore = (areaScore / enablersPlusDisablers) * 10;
-            }
-            console.log(`${marketArea._id} score is ${areaScore}`);
+            // let areaScore = sumOfElements(scores);
+            // const enablersPlusDisablers = totalEnablersAndDisablers(scores);
+            // if (enablersPlusDisablers != 0) {
+            //     areaScore = (areaScore / enablersPlusDisablers) * 10;
+            // }
+            // console.log(`${marketArea._id} score is ${areaScore}`);
 
-            // adding this to the final result
-            marketAreasResult.push({ ...marketArea, scoreArray, areaScore });
+            // // adding this to the final result
+            // marketAreasResult.push({ ...marketArea, scoreArray, areaScore });
         }
 
         marketAreasResult.sort(
             (a, b) => parseFloat(b.areaScore) - parseFloat(a.areaScore)
         );
-        console.log(`Market Areas result is : `, marketAreasResult);
+        console.log(`Sorted Market Areas result is : `, marketAreasResult);
 
         // keeping only the top 15 market areas
         marketAreasResult.slice(0, 15);
 
-        console.log(`Sorted Market Areas result is : `, marketAreasResult);
+        // console.log(`Sliced Market Areas result is : `, marketAreasResult);
 
         if (marketAreasResult[0].areaScore === 0) {
             return res.json({
@@ -250,13 +367,13 @@ module.exports.newLocationAdvisor = async (req, res) => {
             });
         }
 
-        if (schemaName) {
-            let locationAdvisorSchema = new LocationAdvisorSchema({
-                schemaName: schemaName,
-                subcategories: schema,
-            });
-            await locationAdvisorSchema.save();
-        }
+        // if (schemaName) {
+        //     let locationAdvisorSchema = new LocationAdvisorSchema({
+        //         schemaName: schemaName,
+        //         subcategories: schema,
+        //     });
+        //     await locationAdvisorSchema.save();
+        // }
 
         return res.json({
             error: false,
