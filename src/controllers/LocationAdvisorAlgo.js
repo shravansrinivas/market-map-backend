@@ -307,11 +307,15 @@ module.exports.newLocationAdvisor = async (req, res) => {
 
             let areaScore = sumOfElements(scores);
             if (!flag) {
-                areaScore = (arr.length / schemaCategories.length) * 10;
+                areaScore = Math.ceil(
+                    (arr.length / schemaCategories.length) * 10
+                );
             } else {
                 const enablersPlusDisablers = totalEnablersAndDisablers(scores);
                 if (enablersPlusDisablers != 0) {
-                    areaScore = (areaScore / enablersPlusDisablers) * 10;
+                    areaScore = Math.ceil(
+                        (areaScore / enablersPlusDisablers) * 10
+                    );
                 }
             }
 
