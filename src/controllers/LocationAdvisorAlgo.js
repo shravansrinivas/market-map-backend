@@ -102,6 +102,7 @@ module.exports.newLocationAdvisor = async (req, res) => {
         const coordinateMap = [];
         const subcategoriesArray = [];
         const disablertSet = new Set();
+        const radiusMap = new Map();
 
         for (const category of schemaCategories) {
             const { radius, subcategory, disabler } = category;
@@ -111,6 +112,7 @@ module.exports.newLocationAdvisor = async (req, res) => {
             coordinateMap.push({ key: subcategory, lat, lon });
 
             subcategoriesArray.push(subcategory);
+            radiusMap.set(subcategory, radius);
 
             if (disabler) {
                 disablertSet.add(subcategory);
@@ -130,6 +132,10 @@ module.exports.newLocationAdvisor = async (req, res) => {
 
         for (let item of disablertSet) {
             console.log(item);
+        }
+
+        for (const [key, value] of radiusMap) {
+            console.log(key + " = " + value);
         }
 
         let topMarketAreas = await topMarketAreasInACity(cityName);
@@ -242,18 +248,18 @@ module.exports.newLocationAdvisor = async (req, res) => {
                         preserveNullAndEmptyArrays: false,
                     },
                 },
-                // {
-                //     $match: {
-                //         "position.lat": {
-                //             $gte: avgLat - "$latitude",
-                //             $lte: avgLat + "$latitude",
-                //         },
-                //         "position.lon": {
-                //             $gte: avgLon - "$longitude",
-                //             $lte: avgLon + "$longitude",
-                //         },
-                //     },
-                // },
+                {
+                    $match: {
+                        "position.lat": {
+                            $gte: avgLat - "$latitude",
+                            $lte: avgLat + "$latitude",
+                        },
+                        "position.lon": {
+                            $gte: avgLon - "$longitude",
+                            $lte: avgLon + "$longitude",
+                        },
+                    },
+                },
                 {
                     $group: {
                         _id: "$poi.categories",
@@ -277,16 +283,25 @@ module.exports.newLocationAdvisor = async (req, res) => {
             let flag = false;
             for (let obj of arr) {
                 const { count, category } = obj;
+                const radius = radiusMap.get(category);
+                let isDisabler = false;
 
                 let score = 0;
                 if (disablertSet.has(category)) {
                     score = -1 * count;
                     flag = true;
+                    isDisabler = true;
                 } else {
                     score = count;
                 }
 
-                scoreArray.push({ category, score, weight: 1 });
+                scoreArray.push({
+                    category,
+                    radius,
+                    disabler: isDisabler,
+                    score,
+                    weight: 1,
+                });
                 scores.push(score);
             }
 
