@@ -16,7 +16,7 @@ const topMarketAreasInACity = async (city) => {
             },
         },
         {
-            $match: { shopCounts: { $gte: 40 } },
+            $match: { shopCounts: { $gte: 1 } },
         },
         {
             $sort: { shopCounts: -1 },
