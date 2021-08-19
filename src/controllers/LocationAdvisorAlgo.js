@@ -248,18 +248,18 @@ module.exports.newLocationAdvisor = async (req, res) => {
                         preserveNullAndEmptyArrays: false,
                     },
                 },
-                {
-                    $match: {
-                        "position.lat": {
-                            $gte: avgLat - "$latitude",
-                            $lte: avgLat + "$latitude",
-                        },
-                        "position.lon": {
-                            $gte: avgLon - "$longitude",
-                            $lte: avgLon + "$longitude",
-                        },
-                    },
-                },
+                // {
+                //     $match: {
+                //         "position.lat": {
+                //             $gte: avgLat - "$latitude",
+                //             $lte: avgLat + "$latitude",
+                //         },
+                //         "position.lon": {
+                //             $gte: avgLon - "$longitude",
+                //             $lte: avgLon + "$longitude",
+                //         },
+                //     },
+                // },
                 {
                     $group: {
                         _id: "$poi.categories",
